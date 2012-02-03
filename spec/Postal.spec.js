@@ -77,6 +77,91 @@ QUnit.specify("postal.js", function(){
                 assert(msgData).equals("Testing123");
             });
         });
+	    describe("When subscribing with aggregate - AVG", function() {
+		    var agg;
+		    before(function(){
+			    channel = postal.channel("MyExchange","MyTopic");
+			    subscription = channel
+			                    .subscribe(function(data) { agg = data; })
+				                .aggregate(function(state, execCount, data) {
+					                return {
+						                total: state.total + data,
+						                data: (state.total + data)/execCount
+					                };
+			                    }, { total: 0, data: 0 });
+			    channel.publish(10);
+			    channel.publish(20);
+			    channel.publish(30);
+			    channel.publish(40);
+			    channel.publish(50);
+			    channel.publish(60);
+		    });
+		    after(function(){
+			    postal.configuration.bus.subscriptions = {};
+		    });
+		    it("AVG result should equal 35", function(){
+			    assert(agg).equals(35);
+		    });
+	    });
+	    describe("When subscribing with aggregate - SUM", function() {
+		    var sm;
+		    before(function(){
+			    channel = postal.channel("MyExchange","MyTopic");
+			    subscription = channel
+				    .subscribe(function(data) { sm = data; })
+				    .aggregate(function(state, execCount, data) {
+					    return data + state;
+				    }, 0);
+			    channel.publish(10);
+			    channel.publish(20);
+			    channel.publish(30);
+			    channel.publish(40);
+			    channel.publish(50);
+			    channel.publish(60);
+		    });
+		    after(function(){
+			    postal.configuration.bus.subscriptions = {};
+		    });
+		    it("SUM result should equal 210", function(){
+			    assert(sm).equals(210);
+		    });
+	    });
+	    describe("When subscribing with batchByCount", function() {
+		    var result;
+		    before(function(){
+			    result = [];
+			    channel = postal.channel("MyExchange","MyTopic");
+			    subscription = channel
+				    .subscribe(function(data) {
+					    result.push(data);
+				    })
+				    .batchByCount(4);
+			    channel.publish(10);
+			    channel.publish(20);
+			    channel.publish(30);
+			    channel.publish(40);
+			    channel.publish(50);
+			    channel.publish(60);
+			    channel.publish(70);
+			    channel.publish(80);
+		    });
+		    after(function(){
+			    postal.configuration.bus.subscriptions = {};
+		    });
+		    it("result array should contain two elements", function(){
+			    assert(result.length).equals(2);
+		    });
+		    it("result elements should match expected data", function(){
+			    assert(result[0][0]).equals(10);
+			    assert(result[0][1]).equals(20);
+			    assert(result[0][2]).equals(30);
+			    assert(result[0][3]).equals(40);
+			    assert(result[1][0]).equals(50);
+			    assert(result[1][1]).equals(60);
+			    assert(result[1][2]).equals(70);
+			    assert(result[1][3]).equals(80);
+		    });
+	    });
         describe("When subscribing with a disposeAfter of 5", function(){
             var msgReceivedCnt = 0;
             before(function(){

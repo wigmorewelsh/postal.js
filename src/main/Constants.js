@@ -33,4 +33,5 @@ var DEFAULT_EXCHANGE = "/",
                 break;
         }
         return parsed;
-    };
+    },
+	slice = [].slice;

@@ -41,7 +41,8 @@ var DEFAULT_EXCHANGE = "/",
                 break;
         }
         return parsed;
-    };
+    },
+	slice = [].slice;
 
 var DistinctPredicate = function() {
     var previous;
@@ -97,6 +98,48 @@ SubscriptionDefinition.prototype = {
         postal.configuration.bus.unsubscribe(this);
     },
 
+	aggregate: function(aggregateFn, initialState) {
+		if(! _.isFunction(aggregateFn)) {
+			throw "Value provided to 'aggregate' must be a function";
+		}
+		var fn = this.callback, newData, args;
+		this.callback = (function(){
+			var execCount = 0, lastResult = initialState, result;
+			return function() {
+				args = slice.call(arguments, 0);
+				lastResult = aggregateFn.apply(this.context, [lastResult, ++execCount].concat(args));
+				result = typeof lastResult === 'object' && !_.isArray(lastResult) ? lastResult.data : lastResult;
+				if(!(typeof result === 'boolean' && !result)) {
+					fn.apply(this.context, [result].concat(args.slice(1)));
+				}
+			};
+		})();
+		return this;
+	},
+
+	batchByCount: function(count) {
+		if(_.isNaN(count) || count <= 0) {
+			throw "The value provided to batchByCount must be a number greater than zero.";
+		}
+		this.aggregate((function(cnt){
+			var threshold = cnt,
+				current = 0,
+				batch = [],
+				args = slice.call(arguments,1);
+			return function(state, executionCount, data){
+				state.push(data);
+				current++;
+				if(current === threshold) {
+					fn.apply(this, [state].concat(args));
+					current = 0;
+					state = [];
+				}
+				return state;
+			};
+		})(count), []);
+		return this;
+	},
+
     defer: function() {
         var fn = this.callback;
         this.callback = function(data) {
@@ -126,6 +169,11 @@ SubscriptionDefinition.prototype = {
         this.withConstraint(new DistinctPredicate());
         return this;
     },
+
+	once: function() {
+		this.disposeAfter(1);
+		return this;
+	},
 
     whenHandledThenExecute: function(callback) {
         if(! _.isFunction(callback)) {
