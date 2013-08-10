@@ -5,23 +5,9 @@ describe( "SubscriptionDefinition", function () {
 			caughtSubscribeEvent,
 			systemSubscription;
 		before( function () {
-			systemSubscription = postal.subscribe( {
-				channel : "postal",
-				topic : "subscription.created",
-				callback : function ( data, envelope ) {
-					if ( data.event &&
-					     data.event == "subscription.created" &&
-					     data.channel == "SubDefTestChannel" &&
-					     data.topic == "SubDefTestTopic" ) {
-						caughtSubscribeEvent = true;
-					}
-				}
-			} );
 			sDef = new SubscriptionDefinition( "SubDefTestChannel", "SubDefTestTopic", NO_OP );
 		} );
 		after( function () {
-			sDef.unsubscribe();
-			systemSubscription.unsubscribe();
 			caughtSubscribeEvent = false;
 		} );
 		it( "should set the channel to SubDefTestChannel", function () {
@@ -38,9 +24,6 @@ describe( "SubscriptionDefinition", function () {
 		} );
 		it( "should default the context", function () {
 			expect( sDef.context ).to.be( null );
-		} );
-		it( "should fire the subscription.created message", function () {
-			expect( caughtSubscribeEvent ).to.be( true );
 		} );
 	} );
 
@@ -75,7 +58,7 @@ describe( "SubscriptionDefinition", function () {
 	describe( "When setting the context", function () {
 		var obj = { name : "Rose" },
 			name,
-			sDefd = new SubscriptionDefinition( "TestChannel", "TestTopic", NO_OP )
+			sDefd = postal.subscribe({ channel: "TestChannel", topic: "TestTopic", callback: NO_OP })
 				.withContext( obj )
 				.withConstraint( function ( d, e ) {
 					name = this.name;

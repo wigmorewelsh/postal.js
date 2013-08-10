@@ -14,12 +14,35 @@ var postal = {
 	},
 
 	subscribe : function ( options ) {
-		return new SubscriptionDefinition( options.channel || DEFAULT_CHANNEL, options.topic, options.callback );
+		var subDef = new SubscriptionDefinition( options.channel || DEFAULT_CHANNEL, options.topic, options.callback );
+		postal.configuration.bus.publish( {
+			channel : SYSTEM_CHANNEL,
+			topic : "subscription.created",
+			data : {
+				event : "subscription.created",
+				channel : subDef.channel,
+				topic : subDef.topic
+			}
+		} );
+		return postal.configuration.bus.subscribe( subDef );
 	},
 
 	publish : function ( envelope ) {
 		envelope.channel = envelope.channel || DEFAULT_CHANNEL;
 		return postal.configuration.bus.publish( envelope );
+	},
+
+	unsubscribe: function( subdef ) {
+		postal.configuration.bus.unsubscribe( subdef );
+		postal.configuration.bus.publish( {
+			channel : SYSTEM_CHANNEL,
+			topic : "subscription.removed",
+			data : {
+				event : "subscription.removed",
+				channel : subdef.channel,
+				topic : subdef.topic
+			}
+		});
 	},
 
 	addWireTap : function ( callback ) {
