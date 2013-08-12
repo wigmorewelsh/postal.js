@@ -6,9 +6,9 @@ var SubscriptionDefinition = function ( channel, topic, callback ) {
 	this.context = null;
 };
 
-SubscriptionDefinition.prototype = {
+_.extend( SubscriptionDefinition.prototype, {
 	unsubscribe : function () {
-		if(!this.inactive) {
+		if( !this.inactive ) {
 			this.inactive = true;
 			postal.unsubscribe( this );
 		}
@@ -113,4 +113,4 @@ SubscriptionDefinition.prototype = {
 		this.callback = callback;
 		return this;
 	}
-};
+});

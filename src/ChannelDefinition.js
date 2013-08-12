@@ -15,5 +15,5 @@ ChannelDefinition.prototype.publish = function () {
 			arguments[0]) :
 		{ topic : arguments[0], data : arguments[1] };
 	envelope.channel = this.channel;
-	return postal.configuration.bus.publish( envelope );
+	return postal.publish( envelope );
 };
