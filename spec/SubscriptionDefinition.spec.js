@@ -32,10 +32,8 @@ describe( "SubscriptionDefinition", function () {
 			expect( sDef.topic ).to.be( "SubDefTestTopic" );
 		} );
 		it( "should set the callback", function () {
-			expect( sDef.callback ).to.be( NO_OP );
-		} );
-		it( "should default the constraints", function () {
-			expect( sDef.constraints.length ).to.be( 0 );
+			expect( sDef._origcallback ).to.be( NO_OP );
+			expect( typeof sDef.callback ).to.be("function");
 		} );
 		it( "should default the context", function () {
 			expect( sDef.context ).to.be( null );
@@ -45,24 +43,27 @@ describe( "SubscriptionDefinition", function () {
 		} );
 	} );
 
-	describe( "When setting distinctUntilChanged", function () {
+	// TODO - replace this with different implementation if not already in postal.spec.js
+	/*describe( "When setting distinctUntilChanged", function () {
 		var sDefa = new SubscriptionDefinition( "TestChannel", "TestTopic", NO_OP ).distinctUntilChanged();
 
 		it( "Should add a DistinctPredicate constraint to the configuration constraints", function () {
 			expect( sDefa.constraints.length ).to.be( 1 );
 		} );
-	} );
+	} );*/
 
-	describe( "When adding a constraint", function () {
-		var sDefb = new SubscriptionDefinition( "TestChannel", "TestTopic", NO_OP ).withConstraint( function () {
+	// TODO - determine if replacement test is necessary
+	/*describe( "When adding a constraint", function () {
+		var sDefb = new SubscriptionDefinition( "TestChannel", "TestTopic", NO_OP ).withConstraints( function () {
 		} );
 
 		it( "Should add a constraint", function () {
 			expect( sDefb.constraints.length ).to.be( 1 );
 		} );
-	} );
+	} );*/
 
-	describe( "When adding multiple constraints", function () {
+	// TODO - determine if replacement test is necessary
+	/*describe( "When adding multiple constraints", function () {
 		var sDefc = new SubscriptionDefinition( "TestChannel", "TestTopic", NO_OP ).withConstraints( [function () {
 		}, function () {
 		}, function () {
@@ -71,14 +72,14 @@ describe( "SubscriptionDefinition", function () {
 		it( "Should add a constraint", function () {
 			expect( sDefc.constraints.length ).to.be( 3 );
 		} );
-	} );
+	} );*/
 
 	describe( "When setting the context", function () {
 		var obj = { name : "Rose" },
 			name,
 			sDefd = new SubscriptionDefinition( "TestChannel", "TestTopic", NO_OP )
 				.withContext( obj )
-				.withConstraint( function ( d, e ) {
+				.withConstraints( function ( d, e ) {
 					name = this.name;
 					return true;
 				} );
@@ -100,7 +101,8 @@ describe( "SubscriptionDefinition", function () {
 		sDefe.subscribe( fn );
 
 		it( "Should set the callback", function () {
-			expect( sDefe.callback ).to.be( fn );
+			expect( sDefe._origcallback ).to.be( fn );
+			expect( typeof sDefe.callback ).to.be( "function" );
 		} );
 	} );
 

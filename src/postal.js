@@ -26,6 +26,7 @@
 	//import("AmqpBindingsResolver.js");
 	//import("LocalBus.js");
 	//import("Api.js");
+	//import("strategies.js");
 
 	/*jshint -W106 */
 	if ( global && global.hasOwnProperty( "__postalReady__" ) && _.isArray( global.__postalReady__ ) ) {

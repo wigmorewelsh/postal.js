@@ -40,9 +40,6 @@ describe( "Postal", function () {
 		it( "should have set subscription topic value", function () {
 			expect( sub.topic ).to.be( "MyTopic" );
 		} );
-		it( "should have defaulted the subscription constraints array", function () {
-			expect( sub.constraints.length ).to.be( 0 );
-		} );
 		it( "should have defaulted the subscription context value", function () {
 			expect( sub.context ).to.be( null );
 		} );
@@ -234,9 +231,6 @@ describe( "Postal", function () {
 			postal.utils.reset();
 			subInvokedCnt = 0;
 		} );
-		it( "should have a constraint on the subscription", function () {
-			expect( postal.configuration.bus.subscriptions.MyChannel.MyTopic[0].constraints.length ).to.be( 1 );
-		} );
 		it( "subscription callback should be invoked once", function () {
 			expect( subInvokedCnt ).to.be( 1 );
 		} );
@@ -248,7 +242,7 @@ describe( "Postal", function () {
 			subscription = channel.subscribe( "MyTopic", function ( data ) {
 				recvd = true;
 			} )
-				.withConstraint( function () {
+				.withConstraints( function () {
 					return true;
 				} );
 			channel.publish( "MyTopic", "Testing123" );
@@ -256,9 +250,6 @@ describe( "Postal", function () {
 		after( function () {
 			postal.utils.reset();
 			recvd = false;
-		} );
-		it( "should have a constraint on the subscription", function () {
-			expect( postal.configuration.bus.subscriptions.MyChannel.MyTopic[0].constraints.length ).to.be( 1 );
 		} );
 		it( "should have invoked the subscription callback", function () {
 			expect( recvd ).to.be.ok();
@@ -271,7 +262,7 @@ describe( "Postal", function () {
 			subscription = channel.subscribe( "MyTopic", function ( data ) {
 				recvd = true;
 			} )
-				.withConstraint( function () {
+				.withConstraints( function () {
 					return false;
 				} );
 			channel.publish( "MyTopic", "Testing123" );
@@ -279,9 +270,6 @@ describe( "Postal", function () {
 		after( function () {
 			postal.utils.reset();
 			recvd = false;
-		} );
-		it( "should have a constraint on the subscription", function () {
-			expect( postal.configuration.bus.subscriptions.MyChannel.MyTopic[0].constraints.length ).to.be( 1 );
 		} );
 		it( "should not have invoked the subscription callback", function () {
 			expect( recvd ).to.not.be.ok();
@@ -309,9 +297,6 @@ describe( "Postal", function () {
 			postal.utils.reset();
 			recvd = false;
 		} );
-		it( "should have a constraint on the subscription", function () {
-			expect( postal.configuration.bus.subscriptions.MyChannel.MyTopic[0].constraints.length ).to.be( 3 );
-		} );
 		it( "should have invoked the callback", function () {
 			expect( recvd ).to.be.ok();
 		} );
@@ -337,9 +322,6 @@ describe( "Postal", function () {
 		after( function () {
 			postal.utils.reset();
 			recvd = false;
-		} );
-		it( "should have a constraint on the subscription", function () {
-			expect( postal.configuration.bus.subscriptions.MyChannel.MyTopic[0].constraints.length ).to.be( 3 );
 		} );
 		it( "should not have invoked the callback", function () {
 			expect( recvd ).to.not.be.ok()
@@ -610,9 +592,6 @@ describe( "Postal", function () {
 		it( "should have set subscription topic value", function () {
 			expect( sub.topic ).to.be( "MyTopic" );
 		} );
-		it( "should have defaulted the subscription constraints array", function () {
-			expect( sub.constraints.length ).to.be( 0 );
-		} );
 		it( "should have defaulted the subscription context value", function () {
 			expect( sub.context ).to.be( null );
 		} );
@@ -683,7 +662,6 @@ describe( "Postal", function () {
 		it( "should have created a subscription definition", function () {
 			expect( sub.channel ).to.be( "MyChannel" );
 			expect( sub.topic ).to.be( "MyTopic" );
-			expect( sub.constraints.length ).to.be( 0 );
 			expect( sub.context ).to.be( null );
 		} );
 		it( "should have created a resolver cache entry", function () {

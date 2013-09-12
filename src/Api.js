@@ -1,11 +1,30 @@
 /* global localBus, bindingsResolver, ChannelDefinition, SubscriptionDefinition, postal */
 /*jshint -W020 */
+/*jshint -W117 */
+var allowedTargets = ["SubscriptionDefinition", "ChannelDefinition"];
+
 postal = {
 	configuration : {
 		bus             : localBus,
 		resolver        : bindingsResolver,
 		DEFAULT_CHANNEL : "/",
-		SYSTEM_CHANNEL  : "postal"
+		SYSTEM_CHANNEL  : "postal",
+		strategies      : {},
+		registerStrategy : function(name, fn, target) {
+			var targetPrototypes = _.map(_.isArray(target) ? target : [target], function(ctorName){
+				return postal[ctorName].prototype;
+			});
+			if(name && fn) {
+				this.strategies[name] = fn;
+				_.each(targetPrototypes, function(proto){
+					proto[name] = function() {
+						this.applyStrategy(name, slice.call(arguments, 0));
+						this.buildCallback();
+						return this;
+					};
+				});
+			}
+		}
 	},
 
 	ChannelDefinition      : ChannelDefinition,
